@@ -16,7 +16,8 @@ setup_args = dict(
 
 
 install_requires = [
-    'injectable'
+    'injectable',
+    'pika'
 ]
 
 

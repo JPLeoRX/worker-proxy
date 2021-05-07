@@ -3,7 +3,8 @@ import time
 
 import pika
 
-from worker_proxy_utils.utils_rabbitmq import UtilsRabbitmq, Callback
+from worker_proxy_utils.rabbitmq_consumer_callback import RabbitmqConsumerCallback
+from worker_proxy_utils.utils_rabbitmq import UtilsRabbitmq
 
 utils_rabbitmq = UtilsRabbitmq()
 
@@ -11,7 +12,7 @@ rabbit_host = 'localhost'
 rabbit_port = 5672
 channel_name = 'TESTING_CHANNEL'
 
-class MyCallback(Callback):
+class MyCallback(RabbitmqConsumerCallback):
     def callback(self, channel, method, properties, body) -> None:
         channel_name = method.routing_key
         print('MyCallback.callback(): Started on channel [' + channel_name + ']')
