@@ -1,5 +1,5 @@
 import pika
-from .rabbitmq_consumer_callback import RabbitmqConsumerCallback
+from worker_proxy_utils.rabbitmq_consumer_callback import RabbitmqConsumerCallback
 
 
 class RabbitmqConsumer:

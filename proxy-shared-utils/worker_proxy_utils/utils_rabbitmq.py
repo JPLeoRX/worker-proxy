@@ -1,9 +1,11 @@
-from .rabbitmq_sender import RabbitmqSender
-from .rabbitmq_receiver import RabbitmqReceiver
-from .rabbitmq_consumer import RabbitmqConsumer
-from .rabbitmq_consumer_callback import RabbitmqConsumerCallback
+from worker_proxy_utils.rabbitmq_sender import RabbitmqSender
+from worker_proxy_utils.rabbitmq_receiver import RabbitmqReceiver
+from worker_proxy_utils.rabbitmq_consumer import RabbitmqConsumer
+from worker_proxy_utils.rabbitmq_consumer_callback import RabbitmqConsumerCallback
+from injectable import injectable
 
 
+@injectable
 class UtilsRabbitmq:
     def send(self, rabbit_host: str, rabbit_port: int, channel_name: str, message: str) -> bool:
         sender = RabbitmqSender(rabbit_host, rabbit_port, channel_name)
