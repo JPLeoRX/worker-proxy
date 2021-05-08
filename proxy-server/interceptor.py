@@ -1,3 +1,4 @@
+import asyncio
 import json
 import time
 from injectable import injectable, autowired, Autowired
@@ -13,14 +14,14 @@ class Interceptor:
         self.utils_id = utils_id
         self.utils_rabbitmq = utils_rabbitmq
 
-    def intercept(self, rabbit_host: str, rabbit_port: int, request: Request, sleep_interval_in_seconds: float = 0.2, receive_timeout_in_seconds: float =2.0) -> Response:
+    async def intercept(self, rabbit_host: str, rabbit_port: int, request: Request, sleep_interval_in_seconds: float = 0.2, receive_timeout_in_seconds: float =2.0) -> Response:
         # Track IDs
         id = self.utils_id.generate_uuid()
         request_id = 'request-' + id
         response_id = 'response-' + id
 
         # Build new request, and send it to rabbit
-        proxy_request = self.build_proxy_request(request)
+        proxy_request = await self.build_proxy_request(request)
         self.utils_rabbitmq.send(rabbit_host, rabbit_port, request_id, str(proxy_request.json()))
 
         # Build new channel, and send it to rabbit
@@ -39,7 +40,7 @@ class Interceptor:
             proxy_response = ProxyResponse.parse_obj(json.loads(proxy_response_message))
             return Response(content=proxy_response.content, status_code=proxy_response.status_code, headers=proxy_response.headers)
 
-    def build_proxy_request(self, request: Request) -> ProxyRequest:
+    async def build_proxy_request(self, request: Request) -> ProxyRequest:
         return ProxyRequest(
             request.method,
             str(request.url),
