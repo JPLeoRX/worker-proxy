@@ -13,13 +13,10 @@ class InterceptorScheduleGet(InterceptorSchedule):
         self.utils_rabbitmq = utils_rabbitmq
 
     def intercept(self, rabbit_host: str, rabbit_port: int, request: Request) -> Response:
-        # Build new channel, and send it to rabbit
+        # Track IDs
         id = self.utils_id.generate_uuid()
         request_channel = 'request-' + id
         response_channel = 'response-' + id
-        proxy_channel = ProxyChannel(id, request_channel, response_channel)
-        proxy_channel_json_str = str(proxy_channel.json())
-        self.utils_rabbitmq.send(rabbit_host, rabbit_port, 'channels', proxy_channel_json_str)
 
         # Build new request, and send it to rabbit
         proxy_request = ProxyRequest(
@@ -34,6 +31,11 @@ class InterceptorScheduleGet(InterceptorSchedule):
         )
         proxy_request_json_str = str(proxy_request.json())
         self.utils_rabbitmq.send(rabbit_host, rabbit_port, request_channel, proxy_request_json_str)
+
+        # Build new channel, and send it to rabbit
+        proxy_channel = ProxyChannel(id, request_channel, response_channel)
+        proxy_channel_json_str = str(proxy_channel.json())
+        self.utils_rabbitmq.send(rabbit_host, rabbit_port, 'channels', proxy_channel_json_str)
 
         # Wait for response
         proxy_response = self.utils_rabbitmq.receive(rabbit_host, rabbit_port, response_channel, timeout_in_seconds=1.0)
