@@ -1,9 +1,8 @@
-import asyncio
 import json
 import time
 from injectable import injectable, autowired, Autowired
 from fastapi import Request, Response
-from worker_proxy_message_protocol import ProxyRequest, ProxyChannel, ProxyErrorResponse, ProxyResponse
+from worker_proxy_message_protocol import ProxyRequest, ProxyChannel, ProxyErrorResponse, ProxyResponse, RabbitmqConfig
 from worker_proxy_utils import UtilsRabbitmq, UtilsId
 
 
@@ -14,7 +13,7 @@ class Interceptor:
         self.utils_id = utils_id
         self.utils_rabbitmq = utils_rabbitmq
 
-    async def intercept(self, rabbit_host: str, rabbit_port: int, request: Request, sleep_interval_in_seconds: float = 0.2, receive_timeout_in_seconds: float =2.0) -> Response:
+    async def intercept(self, rabbitmq_config: RabbitmqConfig, request: Request, sleep_interval_in_seconds: float = 0.2, receive_timeout_in_seconds: float = 2.0) -> Response:
         # Track IDs
         id = self.utils_id.generate_uuid()
         request_id = 'request-' + id
@@ -22,17 +21,17 @@ class Interceptor:
 
         # Build new request, and send it to rabbit
         proxy_request = await self.build_proxy_request(request)
-        self.utils_rabbitmq.send(rabbit_host, rabbit_port, request_id, str(proxy_request.json()))
+        self.utils_rabbitmq.send(rabbitmq_config, request_id, str(proxy_request.json()))
 
         # Build new channel, and send it to rabbit
         proxy_channel = ProxyChannel(id, request_id, response_id)
-        self.utils_rabbitmq.send(rabbit_host, rabbit_port, 'channels', str(proxy_channel.json()))
+        self.utils_rabbitmq.send(rabbitmq_config, 'channels', str(proxy_channel.json()))
 
         # Hold a small pause, to allow client to catch-up and send the response
         time.sleep(sleep_interval_in_seconds)
 
         # Wait for response
-        proxy_response_message = self.utils_rabbitmq.receive(rabbit_host, rabbit_port, response_id, timeout_in_seconds=receive_timeout_in_seconds)
+        proxy_response_message = self.utils_rabbitmq.receive(rabbitmq_config, response_id, timeout_in_seconds=receive_timeout_in_seconds)
         if proxy_response_message is None:
             error_response = ProxyErrorResponse(id, 'NO_RESPONSE_FROM_WORKER', 'The worker didn\'t provide any response within given time limit')
             return Response(content=str(error_response.json()), media_type="application/json", status_code=500)
