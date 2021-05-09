@@ -1,11 +1,11 @@
 import threading
 import pika
+from worker_proxy_message_protocol import RabbitmqConfig
 
 
 class RabbitmqReceiver:
-    def __init__(self, rabbit_host: str, rabbit_port: int, channel_name: str, debug: bool = False):
-        self.rabbit_host = rabbit_host
-        self.rabbit_port = rabbit_port
+    def __init__(self, rabbitmq_config: RabbitmqConfig, channel_name: str, debug: bool = False):
+        self.rabbitmq_config = rabbitmq_config
         self.channel_name = channel_name
         self.message = None
         self.message_event = threading.Event()
@@ -31,7 +31,8 @@ class RabbitmqReceiver:
                 print('RabbitmqReceiver.callback(): Ended on channel [' + channel_name + ']')
 
     def receive(self, timeout_in_seconds: float = 5.0) -> str:
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.rabbit_host, port=self.rabbit_port))
+        credentials = pika.PlainCredentials(self.rabbitmq_config.username, self.rabbitmq_config.password)
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.rabbitmq_config.host, port=self.rabbitmq_config.port, credentials=credentials))
         channel = connection.channel()
         channel.queue_declare(queue=self.channel_name)
         channel.basic_consume(queue=self.channel_name, auto_ack=False, on_message_callback=self.callback)
