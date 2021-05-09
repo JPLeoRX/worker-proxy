@@ -17,7 +17,8 @@ setup_args = dict(
 
 install_requires = [
     'injectable',
-    'pika'
+    'pika',
+    'worker-proxy-message-protocol'
 ]
 
 
