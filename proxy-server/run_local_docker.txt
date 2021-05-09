@@ -1,0 +1,4 @@
+# Build from root project folder
+docker build -t worker-proxy-sample-service-image -f proxy-server/Dockerfile .
+docker run --name=worker-proxy-sample-service --rm -ti --network="host" -e WORKER_PROXY_RABBITMQ_HOST=127.0.0.1 -e WORKER_PROXY_RABBITMQ_PORT=5672 -e WORKER_PROXY_RABBITMQ_USERNAME=myUser -e WORKER_PROXY_RABBITMQ_PASSWORD=myPassword -p 7001:7001 worker-proxy-sample-service-image
+

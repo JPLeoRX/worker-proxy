@@ -11,9 +11,8 @@ from interceptor import Interceptor
 app = FastAPI()
 utils_env = UtilsEnv()
 interceptor = Interceptor()
-# rabbit_host = 'localhost'
-# rabbit_port = 5672
+
 
 @app.middleware("http")
 async def intercept(request: Request, call_next):
-    return await interceptor.intercept('localhost', 5672, request)
+    return await interceptor.intercept(utils_env.get_rabbitmq_config(), request)
