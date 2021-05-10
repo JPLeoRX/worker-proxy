@@ -1,3 +1,4 @@
 # Build from root project folder
-docker build -t worker-proxy-client-image -f proxy-client/Dockerfile .
-docker run --name=worker-proxy-client --rm -ti --network="host" -e WORKER_PROXY_RABBITMQ_HOST=127.0.0.1 -e WORKER_PROXY_RABBITMQ_PORT=5672 -e WORKER_PROXY_RABBITMQ_USERNAME=myUser -e WORKER_PROXY_RABBITMQ_PASSWORD=myPassword -e WORKER_PROXY_CLIENT_PROXIED_BASE_URL=http://127.0.0.1:7000/ -p 7777:7777 worker-proxy-client-image
+docker build -t jpleorx/worker-proxy-client -f proxy-client/Dockerfile .
+docker run --name=worker-proxy-client --rm -ti --network="host" -e WORKER_PROXY_RABBITMQ_HOST=127.0.0.1 -e WORKER_PROXY_RABBITMQ_PORT=5672 -e WORKER_PROXY_RABBITMQ_USERNAME=myUser -e WORKER_PROXY_RABBITMQ_PASSWORD=myPassword -e WORKER_PROXY_CLIENT_PROXIED_BASE_URL=http://127.0.0.1:7000/ -p 7777:7777 jpleorx/worker-proxy-client
+docker push jpleorx/worker-proxy-client
