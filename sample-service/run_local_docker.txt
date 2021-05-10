@@ -1,2 +1,2 @@
 docker build -t worker-proxy-sample-service .
-docker run --name=worker-proxy-sample-service --rm -ti -p 7001:7001 worker-proxy-sample-service
+docker run --name=worker-proxy-sample-service --rm -ti -p 7000:7000 worker-proxy-sample-service

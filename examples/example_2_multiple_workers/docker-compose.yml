@@ -22,20 +22,38 @@ services:
       WORKER_PROXY_RABBITMQ_USERNAME: myUser
       WORKER_PROXY_RABBITMQ_PASSWORD: myPassword
 
-  client:
+  clientA:
     image: jpleorx/worker-proxy-client
     restart: always
     ports:
-      - "7777:7777"
+      - "7771:7777"
     environment:
       WORKER_PROXY_RABBITMQ_HOST: rabbitmq
       WORKER_PROXY_RABBITMQ_PORT: 5672
       WORKER_PROXY_RABBITMQ_USERNAME: myUser
       WORKER_PROXY_RABBITMQ_PASSWORD: myPassword
-      WORKER_PROXY_CLIENT_PROXIED_BASE_URL: http://worker:7000/
+      WORKER_PROXY_CLIENT_PROXIED_BASE_URL: http://workerA:7000/
 
-  worker:
+  clientB:
+    image: jpleorx/worker-proxy-client
+    restart: always
+    ports:
+      - "7772:7777"
+    environment:
+      WORKER_PROXY_RABBITMQ_HOST: rabbitmq
+      WORKER_PROXY_RABBITMQ_PORT: 5672
+      WORKER_PROXY_RABBITMQ_USERNAME: myUser
+      WORKER_PROXY_RABBITMQ_PASSWORD: myPassword
+      WORKER_PROXY_CLIENT_PROXIED_BASE_URL: http://workerB:7000/
+
+  workerA:
     image: worker-proxy-sample-service
     restart: always
     ports:
       - "7001:7000"
+
+  workerB:
+    image: worker-proxy-sample-service
+    restart: always
+    ports:
+      - "7002:7000"
