@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    ports:
+    - "5672:5672"
+    - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: myUser
+      RABBITMQ_DEFAULT_PASS: myPassword
+
+  server:
+    image: jpleorx/worker-proxy-server
+    restart: always
+    ports:
+      - "8888:8888"
+    environment:
+      WORKER_PROXY_RABBITMQ_HOST: rabbitmq
+      WORKER_PROXY_RABBITMQ_PORT: 5672
+      WORKER_PROXY_RABBITMQ_USERNAME: myUser
+      WORKER_PROXY_RABBITMQ_PASSWORD: myPassword
+
+  client:
+    image: jpleorx/worker-proxy-client
+    restart: always
+    ports:
+      - "7777:7777"
+    environment:
+      WORKER_PROXY_RABBITMQ_HOST: rabbitmq
+      WORKER_PROXY_RABBITMQ_PORT: 5672
+      WORKER_PROXY_RABBITMQ_USERNAME: myUser
+      WORKER_PROXY_RABBITMQ_PASSWORD: myPassword
+      WORKER_PROXY_CLIENT_PROXIED_BASE_URL: http://worker:7001/
+
+  worker:
+    image: worker-proxy-sample-service
+    restart: always
+    ports:
+      - "7001:7001"
